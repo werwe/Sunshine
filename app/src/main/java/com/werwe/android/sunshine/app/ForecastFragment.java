@@ -1,6 +1,7 @@
 package com.werwe.android.sunshine.app;
 
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -86,7 +87,7 @@ public class ForecastFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
@@ -98,7 +99,9 @@ public class ForecastFragment extends Fragment {
         mForecastListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getActivity(), mForecastAdapter.getItem(position).toString(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(), DetailActivity.class);
+                intent.putExtra(Intent.EXTRA_TEXT, mForecastAdapter.getItem(position));
+                startActivity(intent);
             }
         });
         mForecastListview.setAdapter(mForecastAdapter);
