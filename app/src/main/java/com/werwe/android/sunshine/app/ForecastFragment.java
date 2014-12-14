@@ -68,7 +68,7 @@ public class ForecastFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.forcastfragment,menu);
+        inflater.inflate(R.menu.forcastfragment, menu);
     }
 
 
@@ -76,7 +76,7 @@ public class ForecastFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_refresh) {
 //            new FetchWeatherTask().execute(POSTAL_CODE);
-            Log.d("onOptionsItemSelected", "menu item id:"+item.getItemId());
+            Log.d("onOptionsItemSelected", "menu item id:" + item.getItemId());
             new FetchWeatherTask().execute();
             return true;
         }
@@ -101,7 +101,7 @@ public class ForecastFragment extends Fragment {
         return rootView;
     }
 
-    private String[] getWeatherData(String postalCode) {
+    private String getWeatherData(String postalCode) {
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
         HttpURLConnection urlConnection = null;
@@ -151,7 +151,6 @@ public class ForecastFragment extends Fragment {
                 forecastJsonStr = null;
             }
             forecastJsonStr = buffer.toString();
-//            Log.d("ForecastFragment", forecastJsonStr);
         } catch (IOException e) {
             Log.e("ForecastFragment", "Error ", e);
             // If the code didn't successfully get the weather data, there's no point in attempting
@@ -169,20 +168,13 @@ public class ForecastFragment extends Fragment {
                 }
             }
         }
-        String[] result = null;
-        try {
-            result = getWeatherDataFromJson(forecastJsonStr,DAYS);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return result;
+        return forecastJsonStr;
     }
 
     /* The date/time conversion code is going to be moved outside the asynctask later,
  * so for convenience we're breaking it out into its own method now.
  */
-    private String getReadableDateString(long time){
+    private String getReadableDateString(long time) {
         // Because the API returns a unix timestamp (measured in seconds),
         // it must be converted to milliseconds in order to be converted to valid date.
         Date date = new Date(time * 1000);
@@ -205,7 +197,7 @@ public class ForecastFragment extends Fragment {
     /**
      * Take the String representing the complete forecast in JSON Format and
      * pull out the data we need to construct the Strings needed for the wireframes.
-     *
+     * <p/>
      * Fortunately parsing is easy:  constructor takes the JSON string and converts it
      * into an Object hierarchy for us.
      */
@@ -225,7 +217,7 @@ public class ForecastFragment extends Fragment {
         JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
 
         String[] resultStrs = new String[numDays];
-        for(int i = 0; i < weatherArray.length(); i++) {
+        for (int i = 0; i < weatherArray.length(); i++) {
             // For now, using the format "Day, description, hi/low"
             String day;
             String description;
@@ -258,26 +250,27 @@ public class ForecastFragment extends Fragment {
     }
 
     class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
-
         @Override
         protected String[] doInBackground(String... params) {
             String[] result = null;
-            for(String postalCode:params)
-                result = getWeatherData(postalCode);
+            String weatherJson = null;
 
-//            for (String line : result) {
-//                Log.d("FetchWeatherTask", line);
-//            }
+            for (String postalCode : params)
+                weatherJson = getWeatherData(postalCode);
+
+            try {
+                result = getWeatherDataFromJson(weatherJson, DAYS);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             return result;
         }
 
         @Override
         protected void onPostExecute(String[] strings) {
             mForecastAdapter.clear();
-            for(String p:strings)
+            for (String p : strings)
                 mForecastAdapter.add(p);
-            //mForecastAdapter.notifyDataSetInvalidated();
-
         }
     }
 }
