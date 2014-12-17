@@ -42,6 +42,7 @@ public class ForecastFragment extends Fragment {
 
     public static final String POSTAL_CODE = "94043";
     public static final int DAYS = 7;
+    public static final String TAG = "ForecastFragmet";
     String[] forecastArray = {
             "Today - Sunny - 88 /63",
             "Today - Sunny - 88 /63",
@@ -204,10 +205,15 @@ public class ForecastFragment extends Fragment {
      * Prepare the weather high/lows for presentation.
      */
     private String formatHighLows(double high, double low) {
+        String unit = PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .getString(getString(R.string.pref_unit_key), getString(R.string.pref_unit_default));
         // For presentation, assume the user doesn't care about tenths of a degree.
+        if (unit.equals(getString(R.string.pref_unit_imperial))) {
+            high = (high * 1.8) + 32;
+            low = (low * 1.8) + 32;
+        }
         long roundedHigh = Math.round(high);
         long roundedLow = Math.round(low);
-
         String highLowStr = roundedHigh + "/" + roundedLow;
         return highLowStr;
     }
